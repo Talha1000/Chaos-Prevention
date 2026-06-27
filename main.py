@@ -3,6 +3,7 @@ from src.experiments.divergence import run_divergence_experiment
 from src.chaos.lyapunov import compute_lyapunov
 from src.analysis.bsa import run_bsa
 from src.analysis.iwa import run_iwa
+from src.supervisor.reactive import ReactiveSupervsor
 from src.utils.logger import ExperimentLogger
 
 if __name__ == "__main__":
@@ -31,3 +32,13 @@ if __name__ == "__main__":
     distance, rate, peak, opt_start, opt_end = run_iwa()
     print(f"Optimal intervention window: iterations {opt_start} to {opt_end}")
     print(f"Peak leverage point: iteration {peak}")
+
+    # Experiment 5 — Reactive Supervisor
+    print("\nStarting Reactive Supervisor...")
+    supervisor = ReactiveSupervsor(
+        r=4.0,
+        detection_threshold=1e-7,
+        saturation_threshold=0.1,
+        perturbation_scale=1.0
+    )
+    results = supervisor.run(x0_safe=0.3123, delta=1e-9, n_iter=100)
