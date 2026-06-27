@@ -1,5 +1,6 @@
 import numpy as np
 from src.experiments.divergence import run_divergence_experiment
+from src.experiments.perturbation_study import run_perturbation_study
 from src.chaos.lyapunov import compute_lyapunov
 from src.analysis.bsa import run_bsa
 from src.analysis.iwa import run_iwa
@@ -42,3 +43,11 @@ if __name__ == "__main__":
         perturbation_scale=1.0
     )
     results = supervisor.run(x0_safe=0.3123, delta=1e-9, n_iter=100)
+
+    # Experiment 6 — Perturbation Study
+    print("\nStarting Perturbation Study...")
+    scales, distances, improvements, min_scale = run_perturbation_study()
+    if min_scale:
+        print(f"Minimum effective scale: {min_scale:.4f}")
+        print(
+            f"Meaning: {min_scale*100:.1f}% correction achieves full recovery")
