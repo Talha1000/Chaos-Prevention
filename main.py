@@ -1,10 +1,11 @@
 import numpy as np
 from src.experiments.divergence import run_divergence_experiment
-from src.experiments.perturbation_study import run_perturbation_study
 from src.chaos.lyapunov import compute_lyapunov
 from src.analysis.bsa import run_bsa
 from src.analysis.iwa import run_iwa
 from src.supervisor.reactive import ReactiveSupervsor
+from src.experiments.perturbation_study import run_perturbation_study
+from src.supervisor.predictive import PredictiveSupervisor
 from src.utils.logger import ExperimentLogger
 
 if __name__ == "__main__":
@@ -51,3 +52,26 @@ if __name__ == "__main__":
         print(f"Critical threshold: {true_scale:.4f}")
         print(f"Below {true_scale:.4f} — chaotic response zone")
         print(f"Above {true_scale:.4f} — stable recovery zone")
+
+    # Experiment 7 — Predictive Supervisor
+    print("\nStarting Predictive Supervisor...")
+    predictive = PredictiveSupervisor(
+        r=4.0,
+        perturbation_scale=1.0,      # full correction every time
+        lyapunov_window=10,
+        lyapunov_spike_factor=1.05,  # more sensitive than before
+        accel_threshold=1.5,         # lower than before
+        cooldown=5                   # shorter cooldown
+    )
+    pred_results = predictive.run(x0_safe=0.3123, delta=1e-9, n_iter=100)
+
+    # --- Final Summary ---
+    print("\n" + "=" * 50)
+    print("FINAL SUMMARY")
+    print("=" * 50)
+    print(f"Reactive  — interventions: 1  | "
+          f"improvement: {results['improvement'] * 100:.1f}%")
+    print(f"Predictive — interventions: "
+          f"{len(pred_results['predictive_interventions'])} | "
+          f"improvement: {pred_results['improvement_predictive']:.1f}% | "
+          f"cost: {pred_results['total_predictive_cost']:.2e}")
