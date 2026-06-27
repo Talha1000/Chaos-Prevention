@@ -16,7 +16,7 @@ def run_perturbation_study(
     """
     Sweep perturbation_scale from 0.0 to 1.0.
     For each scale, measure final divergence.
-    Find the minimum perturbation that achieves recovery.
+    Find the true stable threshold where recovery becomes reliable.
     """
 
     scales = np.linspace(0.0, 1.0, 200)
@@ -57,15 +57,20 @@ def run_perturbation_study(
         improvement_pcts[idx] = (baseline_final - final_d) / \
             (baseline_final + 1e-12) * 100
 
-    # --- Find minimum effective scale ---
-    success_threshold = 0.01  # 99% reduction in final distance
-    effective_mask = final_distances < success_threshold
-    if np.any(effective_mask):
-        min_effective_scale = scales[np.argmax(effective_mask)]
-    else:
-        min_effective_scale = None
+    # --- Find true stable effective scale ---
+    success_threshold = 0.01
+    window = 10  # must stay below threshold for 10 consecutive points
 
-    print(f"Minimum effective perturbation scale: {min_effective_scale:.4f}")
+    true_effective_scale = None
+    for i in range(len(scales) - window):
+        if np.all(final_distances[i:i + window] < success_threshold):
+            true_effective_scale = scales[i]
+            break
+
+    if true_effective_scale:
+        print(f"True stable effective scale: {true_effective_scale:.4f}")
+    else:
+        print("No stable threshold found")
     print(f"At scale 1.0: final distance = {final_distances[-1]:.8f}")
 
     # --- Plot ---
@@ -78,11 +83,12 @@ def run_perturbation_study(
                 linewidth=1, label=f"Baseline = {baseline_final:.4f}")
     ax1.axhline(success_threshold, color="green", linestyle=":",
                 linewidth=1, label=f"Success threshold = {success_threshold}")
-    if min_effective_scale:
-        ax1.axvline(min_effective_scale, color="gold", linewidth=2,
-                    linestyle="--", label=f"Min effective scale = {min_effective_scale:.4f}")
+    if true_effective_scale:
+        ax1.axvline(true_effective_scale, color="gold", linewidth=2,
+                    linestyle="--",
+                    label=f"Critical threshold = {true_effective_scale:.4f}")
     ax1.set_ylabel("Final Divergence")
-    ax1.set_title("Perturbation Cost Study — Minimum Effective Intervention")
+    ax1.set_title("Perturbation Cost Study — Critical Intervention Threshold")
     ax1.legend(fontsize=8)
     ax1.grid(True, linestyle="--", alpha=0.4)
     ax1.set_yscale("log")
@@ -92,9 +98,17 @@ def run_perturbation_study(
     ax2.axhline(99, color="gold", linestyle="--",
                 linewidth=1, label="99% improvement threshold")
     ax2.axhline(0, color="crimson", linestyle=":", linewidth=1)
-    if min_effective_scale:
-        ax2.axvline(min_effective_scale, color="gold",
-                    linewidth=2, linestyle="--")
+    if true_effective_scale:
+        ax2.axvline(true_effective_scale, color="gold",
+                    linewidth=2, linestyle="--",
+                    label=f"Critical threshold = {true_effective_scale:.4f}")
+
+    # Shade the three regimes
+    ax2.axvspan(0, true_effective_scale if true_effective_scale else 0.45,
+                alpha=0.08, color="red", label="Chaotic response zone")
+    ax2.axvspan(true_effective_scale if true_effective_scale else 0.45, 1.0,
+                alpha=0.08, color="green", label="Stable recovery zone")
+
     ax2.set_xlabel("Perturbation Scale")
     ax2.set_ylabel("Improvement %")
     ax2.legend(fontsize=8)
@@ -113,10 +127,12 @@ def run_perturbation_study(
         "delta": delta,
         "n_iter": n_iter,
         "baseline_final_distance": float(baseline_final),
-        "min_effective_scale": float(min_effective_scale) if min_effective_scale else None,
+        "true_effective_scale": float(true_effective_scale) if true_effective_scale else None,
+        "chaotic_response_zone": [0.0, float(true_effective_scale) if true_effective_scale else None],
+        "stable_recovery_zone": [float(true_effective_scale) if true_effective_scale else None, 1.0],
         "scale_at_100pct": 1.0,
         "final_distance_at_100pct": float(final_distances[-1]),
         "n_scales_tested": len(scales)
     })
 
-    return scales, final_distances, improvement_pcts, min_effective_scale
+    return scales, final_distances, improvement_pcts, true_effective_scale

@@ -46,8 +46,8 @@ if __name__ == "__main__":
 
     # Experiment 6 — Perturbation Study
     print("\nStarting Perturbation Study...")
-    scales, distances, improvements, min_scale = run_perturbation_study()
-    if min_scale:
-        print(f"Minimum effective scale: {min_scale:.4f}")
-        print(
-            f"Meaning: {min_scale*100:.1f}% correction achieves full recovery")
+    scales, distances, improvements, true_scale = run_perturbation_study()
+    if true_scale:
+        print(f"Critical threshold: {true_scale:.4f}")
+        print(f"Below {true_scale:.4f} — chaotic response zone")
+        print(f"Above {true_scale:.4f} — stable recovery zone")
