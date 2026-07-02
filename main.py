@@ -8,6 +8,7 @@ from src.experiments.perturbation_study import run_perturbation_study
 from src.supervisor.predictive import PredictiveSupervisor
 from src.utils.logger import ExperimentLogger
 from src.experiments.henon_experiment import run_henon_experiment
+from src.experiments.lorenz_experiment import run_lorenz_experiment
 
 if __name__ == "__main__":
 
@@ -80,3 +81,7 @@ if __name__ == "__main__":
     # Experiment 8 — Henon Map Generalization
     print("\nStarting Henon Map Experiment...")
     henon_results = run_henon_experiment()
+
+    # Experiment 9 — Lorenz System
+    print("\nStarting Lorenz System Experiment...")
+    lorenz_results = run_lorenz_experiment()
