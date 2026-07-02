@@ -7,6 +7,7 @@ from src.supervisor.reactive import ReactiveSupervsor
 from src.experiments.perturbation_study import run_perturbation_study
 from src.supervisor.predictive import PredictiveSupervisor
 from src.utils.logger import ExperimentLogger
+from src.experiments.henon_experiment import run_henon_experiment
 
 if __name__ == "__main__":
 
@@ -75,3 +76,7 @@ if __name__ == "__main__":
           f"{len(pred_results['predictive_interventions'])} | "
           f"improvement: {pred_results['improvement_predictive']:.1f}% | "
           f"cost: {pred_results['total_predictive_cost']:.2e}")
+
+    # Experiment 8 — Henon Map Generalization
+    print("\nStarting Henon Map Experiment...")
+    henon_results = run_henon_experiment()
