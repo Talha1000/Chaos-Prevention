@@ -9,6 +9,7 @@ from src.supervisor.predictive import PredictiveSupervisor
 from src.utils.logger import ExperimentLogger
 from src.experiments.henon_experiment import run_henon_experiment
 from src.experiments.lorenz_experiment import run_lorenz_experiment
+from src.experiments.neural_drift import run_neural_drift_experiment
 
 if __name__ == "__main__":
 
@@ -85,3 +86,12 @@ if __name__ == "__main__":
     # Experiment 9 — Lorenz System
     print("\nStarting Lorenz System Experiment...")
     lorenz_results = run_lorenz_experiment()
+
+    # Experiment 10 — Neural Network Drift
+    print("\nStarting Neural Network Drift Experiment...")
+    nn_results = run_neural_drift_experiment()
+    print(f"\nNeural Network Results:")
+    print(f"  Unsupervised MSE: {nn_results['unsupervised_mse']:.6f}")
+    print(f"  Supervised MSE:   {nn_results['supervised_mse']:.6f}")
+    print(f"  Improvement:      {nn_results['improvement']:.1f}%")
+    print(f"  Interventions:    {len(nn_results['interventions'])}")
